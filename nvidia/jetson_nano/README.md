@@ -112,8 +112,49 @@ newgrp docker
 sudo shutdown -r now
 ```
 
+* Set NVIDIA
+
+```sh
+sudo vim /etc/bash.bashrc
+```
+
+```sh
+export PATH="${PATH}:/usr/local/cuda/bin"
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda/lib64"
+
+```
+
+```sh
+sudo dpkg --get-selections | grep nvidia
+sudo docker info | grep nvidia
+```
+
+
+* Building CUDA in Containers on Jetson
+
+```sh
+cd ~
+mkdir /tmp/docker-build && cd /tmp/docker-build
+cp -r /usr/local/cuda/samples/ ./
+tee ./Dockerfile <<EOF
+FROM nvcr.io/nvidia/l4t-base:r32.2
+
+RUN apt-get update && apt-get install -y --no-install-recommends make g++
+COPY ./samples /tmp/samples
+
+WORKDIR /tmp/samples/1_Utilities/deviceQuery
+RUN make clean && make
+
+CMD ["./deviceQuery"]
+EOF
+
+sudo docker build -t devicequery .
+sudo docker run -it --runtime nvidia devicequery
+```
+
 
 ### Test Docker GPU support
+
 
 * Test a Docker image
 we are ready to test if Docker runs correctly and supports GPU.
