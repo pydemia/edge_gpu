@@ -219,8 +219,9 @@ Result = PASS
 * Test a Docker image
 we are ready to test if Docker runs correctly and supports GPU.
 To make this easier, we created a dedicated Docker image with “deviceQuery” tool from the CUDA SDK which is used to query the GPU and present its capabilities. The command to run it is simple:
-```sh
-docker run -it jitteam/devicequery ./deviceQuery
+```diff
+-docker run -it jitteam/devicequery ./deviceQuery
++docker run -it pydemia/nvidia-jetson-nano ./deviceQuery
 ```
 
 Then, The output is the following:
