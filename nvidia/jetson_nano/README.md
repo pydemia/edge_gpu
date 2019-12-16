@@ -64,6 +64,7 @@ sudo nvpmodel -m 0
 
 * Disable SWAP Memory (it can causes issues on k8s)
 ```sh
+sudo sysctl -w vm.swappiness=10
 sudo swapoff -a
 ```
 
@@ -75,13 +76,19 @@ sudo vim /etc/docker/daemon.json
 
 ```json
 {
-  “default-runtime”: “nvidia”,
-  “runtimes”: {
-    “nvidia”: {
-      “path”: “nvidia-container-runtime”,
-      “runtimeArgs”: []
-     }
-   }
+  "default-runtime": "nvidia",
+  "runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  },
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
 }
 ```
 
@@ -306,4 +313,33 @@ sudo apt-mark hold kubelet kubeadm kubectl
 ```sh
 sudo apt-get install apt-transport-https -y
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.listsudo apt-get updatesudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+```
+
+### Configuring the master node
+
+```sh
+sudo vim /etc/bash.bashrc
+```
+
+```sh
+export API_ADDR="192.168.201.2"  # Master Server external IP
+export DNS_DOMAIN="k8s.local"
+export POD_NET="10.100.0.0/16"   # k8s cluster POD Network CIDR
+```
+
+For chaining the bridged network traffic to `iptables`:
+
+```sh
+sudo sysctl net.bridge.bridge-nf-call-iptables=1
+```
+
+```sh
+sudo kubeadm init --pod-network-cidr=10.244.10.0/16 --kubernetes-version "1.15.2"
+
+sudo kubeadm init \
+ --pod-network-cidr=${POD_NET} \
+ --apiserver-advertise-address ${API_ADDR} \
+ --service-dns-domain "${DNS_DOMAIN}"
+ 
+
 ```
