@@ -96,7 +96,7 @@ sudo vim /etc/docker/daemon.json
 * Update all packages you have
 ```sh
 sudo apt-get update
-sudo apt-get dist-upgrade
+sudo apt-get dist-upgrade -y
 ```
 
 * Set a group `docker`   
@@ -278,7 +278,7 @@ Result = PASS
 
 * Static IP addressing  
 ```sh
-sudo apt-get install netplan.io
+sudo apt-get install netplan.io -y
 sudo netplan apply
 ```
 
@@ -304,5 +304,6 @@ sudo apt-mark hold kubelet kubeadm kubectl
 ```
 
 ```sh
-sudo apt-get install apt-transport-https -ycurl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.listsudo apt-get updatesudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+sudo apt-get install apt-transport-https -y
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.listsudo apt-get updatesudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni
 ```
