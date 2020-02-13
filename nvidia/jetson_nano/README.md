@@ -9,6 +9,10 @@
 
 ### Network Config
 
+```sh
+cat ~/.ssh/pydemia-server-surface-rsa-key.pub | ssh pydemia@192.168.201.3 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat > ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+```
+
 ### System Basic Setting
 
 ```sh
@@ -44,7 +48,8 @@ sudo add-apt-repository \
 
 sudo apt update
 
-sudo apt install docker-ce docker-ce-cli containerd.io -y
+sudo apt-get install -y docker-ce=18.06.1~ce~3-0~ubuntu docker-ce-cli containerd.io --allow-downgrades
+#sudo apt install docker-ce docker-ce-cli containerd.io -y
 
 ```
 
@@ -65,7 +70,8 @@ sudo nvpmodel -m 0
 * Disable SWAP Memory (it can causes issues on k8s)
 ```sh
 sudo sysctl -w vm.swappiness=10
-sudo swapoff -a
+#sudo swapoff -a
+sudo systemctl mask dev-sdXX.swap #mask, unmask
 ```
 
 * Set the NVidia runtime as a default runtime in Docker. For this edit /etc/docker/daemon.json file, so it looks like this:
@@ -286,34 +292,50 @@ Result = PASS
 * Static IP addressing  
 ```sh
 sudo apt-get install netplan.io -y
+```
+
+[Using DHCP and static addressing via `netplan`](https://netplan.io/examples#using-dhcp-and-static-addressing)
+
+```sh
 sudo netplan apply
 ```
 
-The example:
+
+```sh
+sudo vim /etc/hosts
+```
+
 ```txt
-jetson1 192.168.1.10
-jetson2 192.168.1.11
-jetson3 192.168.1.12
-jetson4 194.168.1.13
+127.0.0.1       localhost
+127.0.1.1       pydemia-jn00 # Its own hostname
+
+
+192.168.201.2   pydemia-jn00
+192.168.201.3   pydemia-jn01
+192.168.201.4   pydemia-jn02
+192.168.201.5   pydemia-jn03
+```
+
+```diff
+-sudo hostnamectl set-hostname master-node
 ```
 
 
 ```sh
 sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
 deb https://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl
+
+#apt list -a kubeadm
+sudo apt-get install -y kubelet=1.15.10-00 kubeadm=1.15.10-00 kubectl=1.15.10-00 --allow-downgrades --allow-change-held-packages
 sudo apt-mark hold kubelet kubeadm kubectl
 
 ```
 
-```sh
-sudo apt-get install apt-transport-https -y
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.listsudo apt-get updatesudo apt-get install -y kubelet kubeadm kubectl kubernetes-cni
-```
 
 ### Configuring the master node
 
@@ -334,12 +356,13 @@ sudo sysctl net.bridge.bridge-nf-call-iptables=1
 ```
 
 ```sh
-sudo kubeadm init --pod-network-cidr=10.244.10.0/16 --kubernetes-version "1.15.2"
+sudo kubeadm init --pod-network-cidr=10.244.10.0/16 --kubernetes-version "1.15.10"
 
 sudo kubeadm init \
  --pod-network-cidr=${POD_NET} \
  --apiserver-advertise-address ${API_ADDR} \
- --service-dns-domain "${DNS_DOMAIN}"
+ --service-dns-domain "${DNS_DOMAIN}" \
+ --kubernetes-version "1.15.10"
  
 
 ```
