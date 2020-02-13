@@ -367,6 +367,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 sudo vim /etc/bash.bashrc
 ```
 
+As `ROOT`:
 ```sh
 export API_ADDR="192.168.201.2"  # Master Server external IP
 export DNS_DOMAIN="k8s.local"
@@ -376,13 +377,11 @@ export POD_NET="10.100.0.0/16"   # k8s cluster POD Network CIDR
 For chaining the bridged network traffic to `iptables`:
 
 ```sh
-sudo sysctl net.bridge.bridge-nf-call-iptables=1
+sysctl net.bridge.bridge-nf-call-iptables=1
 ```
 
 ```sh
-sudo kubeadm init --pod-network-cidr=10.244.10.0/16 --kubernetes-version "1.15.10"
-
-sudo kubeadm init \
+kubeadm init \
  --pod-network-cidr=${POD_NET} \
  --apiserver-advertise-address ${API_ADDR} \
  --service-dns-domain "${DNS_DOMAIN}" \
@@ -391,8 +390,7 @@ sudo kubeadm init \
 ```
 
 
-```sh
-[init] Using Kubernetes version: v1.15.10
+```sh[init] Using Kubernetes version: v1.15.10
 [preflight] Running pre-flight checks
 [preflight] Pulling images required for setting up a Kubernetes cluster
 [preflight] This might take a minute or two, depending on the speed of your internet connection
@@ -401,19 +399,18 @@ sudo kubeadm init \
 [kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
 [kubelet-start] Activating the kubelet service
 [certs] Using certificateDir folder "/etc/kubernetes/pki"
+[certs] Generating "etcd/ca" certificate and key
+[certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1]
+[certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1] [certs] Generating "apiserver-etcd-client" certificate and key
 [certs] Generating "ca" certificate and key
 [certs] Generating "apiserver" certificate and key
 [certs] apiserver serving cert is signed for DNS names [pydemia-jn00 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.k8s.local] and IPs [10.96.0.1 192.168.201.2]
 [certs] Generating "apiserver-kubelet-client" certificate and key
 [certs] Generating "front-proxy-ca" certificate and key
 [certs] Generating "front-proxy-client" certificate and key
-[certs] Generating "etcd/ca" certificate and key
-[certs] Generating "apiserver-etcd-client" certificate and key
-[certs] Generating "etcd/healthcheck-client" certificate and key
-[certs] Generating "etcd/server" certificate and key
-[certs] etcd/server serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1]
-[certs] Generating "etcd/peer" certificate and key
-[certs] etcd/peer serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1]
 [certs] Generating "sa" key and public key
 [kubeconfig] Using kubeconfig folder "/etc/kubernetes"
 [kubeconfig] Writing "admin.conf" kubeconfig file
@@ -426,19 +423,17 @@ sudo kubeadm init \
 [control-plane] Creating static Pod manifest for "kube-scheduler"
 [etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
 [wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
-[kubelet-check] Initial timeout of 40s passed.
-[apiclient] All control plane components are healthy after 51.054907 seconds
+[apiclient] All control plane components are healthy after 32.007163 seconds
 [upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
 [kubelet] Creating a ConfigMap "kubelet-config-1.15" in namespace kube-system with the configuration for the kubelets in the cluster
 [upload-certs] Skipping phase. Please see --upload-certs
 [mark-control-plane] Marking the node pydemia-jn00 as control-plane by adding the label "node-role.kubernetes.io/master=''"
 [mark-control-plane] Marking the node pydemia-jn00 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
-[bootstrap-token] Using token: 0a8n93.lidow9jsbt5r1hxu
+[bootstrap-token] Using token: n63827.3uiioz4x033u1or3
 [bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
 [bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
 [bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
-[bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
-[bootstrap-token] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
+[bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster   [bootstrap-token] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
 [addons] Applied essential addon: CoreDNS
 [addons] Applied essential addon: kube-proxy
 
@@ -456,12 +451,13 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join 192.168.201.2:6443 --token 0a8n93.lidow9jsbt5r1hxu \
-    --discovery-token-ca-cert-hash sha256:68cd5a3e1dc7804616640d46fc1a5caaed58aa4fcdf60b93627d24412a778eb4
+kubeadm join 192.168.201.2:6443 --token n63827.3uiioz4x033u1or3 \
+    --discovery-token-ca-cert-hash sha256:fc3785005a68682ec5d5d4e9129bdc30dbeb167f1e201e26bd3f22519a9f18ac
+
 ```
 
 
-### Set Master
+#### Set Master
 
 ```sh
 mkdir -p $HOME/.kube
@@ -469,5 +465,95 @@ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 export KUBECONFIG=$HOME/.kube/config
 echo "export KUBECONFIG=$HOME/.kube/config" | tee -a ~/.bashrc
+
 ```
 
+* Pod Networking via `Calico`(used by Google)
+```sh
+wget https://docs.projectcalico.org/v3.7/manifests/calico.yaml
+vim calico.yaml
+```
+
+```yaml
+- name: CALICO_IPV4POOL_CIDR
+  value: "10.100.0.0/16"
+```
+
+```sh
+kubectl apply -f calico.yaml
+```
+
+#### Set Nodes
+
+AS `ROOT`:
+```sh
+kubeadm join 192.168.201.2:6443 --token n63827.3uiioz4x033u1or3 \
+    --discovery-token-ca-cert-hash sha256:fc3785005a68682ec5d5d4e9129bdc30dbeb167f1e201e26bd3f22519a9f18ac
+
+```
+
+If needed:
+```sh
+kubeadm reset -f
+```
+
+
+
+#### Check
+
+```sh
+kubectl label node pydemia-jn01 node-role.kubernetes.io/worker=worker
+kubectl label node pydemia-jn02 node-role.kubernetes.io/worker=worker
+kubectl label node pydemia-jn03 node-role.kubernetes.io/worker=worker
+```
+
+```sh
+kubectl get nodes
+
+NAME           STATUS   ROLES    AGE   VERSION
+pydemia-jn00   Ready    master   37m   v1.15.10
+pydemia-jn01   Ready    worker   24m   v1.15.10
+pydemia-jn02   Ready    worker   24m   v1.15.10
+pydemia-jn03   Ready    worker   23m   v1.15.10
+
+```
+
+```sh
+watch kubectl get pods --all-namespaces
+
+```
+
+
+
+#### Test
+
+```sh
+vim gpu-test.yml
+```
+
+```yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: devicequery
+spec:
+  containers:
+    - name: nvidia
+      image: pydemia/nvidia-jetson-nano:latest
+      command: [ "./deviceQuery" ]
+
+```
+
+```sh
+kubectl apply -f gpu-test.yml
+# pod/devicequery created
+
+kubectl logs devicequery
+
+```
+
+
+
+```sh
+systemctl restart kubelet
+```
