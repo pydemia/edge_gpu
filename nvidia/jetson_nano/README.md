@@ -70,11 +70,14 @@ sudo nvpmodel -m 0
 * Disable SWAP Memory (it can causes issues on k8s)
 
 ```sh
-sudo vim /etc/rc.local
-```
+sudo tee /etc/rc.local << EOF
+#!/bin/bash
 
-```text
 swapoff -a
+
+EOF
+
+sudo shutdown -r now
 ```
 
 
