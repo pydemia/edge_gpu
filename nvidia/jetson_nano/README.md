@@ -68,6 +68,16 @@ sudo nvpmodel -m 0
 ```
 
 * Disable SWAP Memory (it can causes issues on k8s)
+
+```sh
+sudo vim /etc/rc.local
+```
+
+```text
+swapoff -a
+```
+
+
 ```sh
 sudo sysctl -w vm.swappiness=10
 #sudo swapoff -a
