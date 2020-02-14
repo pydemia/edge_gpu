@@ -606,3 +606,90 @@ kubectl logs devicequery
 ```sh
 systemctl restart kubelet
 ```
+
+
+### Dashboard
+
+
+#### Get Certificates
+
+```sh
+mkdir ~/certs
+cd ~/certs
+
+openssl genrsa -des3 -passout pass:x -out dashboard.pass.key 2048
+openssl rsa -passin pass:x -in dashboard.pass.key -out dashboard.key
+openssl req -new -key dashboard.key -out dashboard.csr
+openssl x509 -req -sha256 -days 365 -in dashboard.csr -signkey dashboard.key -out dashboard.crt
+
+```
+
+#### Recommended Setup
+
+```sh
+kubectl create secret generic kubernetes-dashboard-certs --from-file=$HOME/certs -n kube-system
+
+```
+
+
+#### Set NodePort
+
+```sh
+kubectl edit service kubernetes-dashboard -n kube-system
+```
+
+```txt
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+kind: Service
+metadata:
+annotations:
+   kubectl.kubernetes.io/last-applied-configuration: |
+     {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"k8s-app":"kubernetes-dashboard"},"name":"kubernetes-dashboard","namespace":"kube-system"},"spec":{"ports":[{"port":443,"targetPort":8443}],"selector":{"k8s-app":"kubernetes-dashboard"}}}
+creationTimestamp: 2018-12-24T04:27:04Z
+labels:
+   k8s-app: kubernetes-dashboard
+name: kubernetes-dashboard
+namespace: kube-system
+resourceVersion: "1748"
+selfLink: /api/v1/namespaces/kube-system/services/kubernetes-dashboard
+uid: 2a4888ce-0734-11e9-9162-000c296423b3
+spec:
+clusterIP: 10.100.194.126
+externalTrafficPolicy: Cluster
+ports:
+- nodePort: 31055
+   port: 443
+   protocol: TCP
+   targetPort: 8443
+selector:
+   k8s-app: kubernetes-dashboard
+sessionAffinity: None
+type: NodePort
+status:
+loadBalancer: {}
+```
+
+#### Check
+
+```sh
+kubectl get service -n kube-system
+```
+
+#### Create an account
+
+```sh
+kubectl create serviceaccount cluster-admin-dashboard-sa
+kubectl create clusterrolebinding cluster-admin-dashboard-sa --clusterrole=cluster-admin --serviceaccount=default:cluster-admin-dashboard-sa
+```
+
+#### Check token info
+
+```sh
+kubectl get secret $(kubectl get serviceaccount cluster-admin-dashboard-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
+
+```
+
