@@ -378,6 +378,10 @@ For chaining the bridged network traffic to `iptables`:
 
 ```sh
 sysctl net.bridge.bridge-nf-call-iptables=1
+/etc/sysctl.conf 파일에 net.ipv4.conf.all.rp_filter = 1을 추가한 후 sysctl -p 로 커널 파라미터 수정을 반영한다.
+
+출처: https://november11tech.tistory.com/156 [Mr.november11]
+
 ```
 
 ```sh
