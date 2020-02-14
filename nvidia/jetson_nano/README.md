@@ -10,6 +10,24 @@
 ### Network Config
 
 ```sh
+$ route
+
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         _gateway        0.0.0.0         UG    100    0        0 eth0
+link-local      0.0.0.0         255.255.0.0     U     1000   0        0 eth0
+192.168.0.0     0.0.0.0         255.255.0.0     U     100    0        0 eth0
+
+$ netstat -rn
+
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+0.0.0.0         192.168.0.1     0.0.0.0         UG        0 0          0 eth0
+169.254.0.0     0.0.0.0         255.255.0.0     U         0 0          0 eth0
+192.168.0.0     0.0.0.0         255.255.0.0     U         0 0          0 eth0
+```
+
+```sh
 cat ~/.ssh/pydemia-server-surface-rsa-key.pub | ssh pydemia@192.168.201.3 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat > ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
 ```
 
@@ -378,11 +396,16 @@ For chaining the bridged network traffic to `iptables`:
 
 ```sh
 sysctl net.bridge.bridge-nf-call-iptables=1
-/etc/sysctl.conf 파일에 net.ipv4.conf.all.rp_filter = 1을 추가한 후 sysctl -p 로 커널 파라미터 수정을 반영한다.
 
-출처: https://november11tech.tistory.com/156 [Mr.november11]
+vim /etc/sysctl.conf
+
+net.bridge.bridge-nf-call-iptables=1
+net.bridge.bridge-nf-call-ip6tables=1
+net.netfilter.nf_conntrack_max = 786432
 
 ```
+
+
 
 ```sh
 kubeadm init \
