@@ -36,6 +36,7 @@ cat ~/.ssh/pydemia-server-surface-rsa-key.pub | ssh pydemia@192.168.201.3 "mkdir
 ```sh
 sudo apt update
 sudo apt install vim htop -y
+
 ```
 
 
@@ -43,6 +44,7 @@ sudo apt install vim htop -y
 
 ```sh
 sudo systemctl set-default multi-user.target
+
 #Removed /etc/systemd/system/default.target.
 #Created symlink /etc/systemd/system/default.target → /lib/systemd/system/multi-user.target.
 
@@ -57,6 +59,12 @@ sudo nvpmodel -m 0
 
 ```sh
 sudo mv /etc/systemd/nvzramconfig.sh /etc/systemd/nvzramconfig.sh.bak && sudo shutdown -r now
+
+
+free -h
+              total        used        free      shared  buff/cache   available
+Mem:           3.9G        178M        3.4G         17M        284M        3.5G
+Swap:            0B          0B          0B
 ```
 
 ```sh
@@ -100,7 +108,12 @@ sudo add-apt-repository \
 
 sudo apt update
 
-sudo apt-get install -y docker-ce=18.06.1~ce~3-0~ubuntu docker-ce-cli containerd.io --allow-downgrades
+sudo apt-get install -y \
+  docker-ce=18.06.1~ce~3-0~ubuntu \
+  #docker-ce-cli \
+  containerd.io \
+  --allow-downgrades
+
 #sudo apt install docker-ce docker-ce-cli containerd.io -y
 
 ```
@@ -122,10 +135,7 @@ sudo systemctl mask dev-sdXX.swap #mask, unmask
 * Set the NVidia runtime as a default runtime in Docker. For this edit /etc/docker/daemon.json file, so it looks like this:
 
 ```sh
-sudo vim /etc/docker/daemon.json
-```
-
-```json
+sudo tee /etc/docker/daemon.json << EOF
 {
   "default-runtime": "nvidia",
   "runtimes": {
@@ -141,7 +151,11 @@ sudo vim /etc/docker/daemon.json
   },
   "storage-driver": "overlay2"
 }
+
+EOF
+
 ```
+
 
 > Among the settings presented here, the one above is very, very, very crucial.
 > You will experience a lot of issues if you fail to set this correctly.
@@ -153,8 +167,9 @@ sudo vim /etc/docker/daemon.json
 
 * Update all packages you have
 ```sh
-sudo apt-get update
-sudo apt-get dist-upgrade -y
+#sudo apt-get update
+#sudo apt-get dist-upgrade -y
+
 ```
 
 * Set a group `docker`   
@@ -163,6 +178,7 @@ Add current user to docker group to use docker command without sudo, following t
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker
+
 ```
 
 * Reboot
@@ -171,6 +187,17 @@ sudo shutdown -r now
 ```
 
 * Set NVIDIA
+
+```sh
+#sudo tee -a /etc/bash.bashrc > /dev/null <<EOT
+
+#export PATH="${PATH}:/usr/local/cuda/bin"
+#export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda/lib64"
+
+#EOT
+
+```
+
 
 ```sh
 sudo vim /etc/bash.bashrc
