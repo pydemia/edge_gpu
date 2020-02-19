@@ -4,8 +4,8 @@
 
 ### Boot-up
 
-* Get an Image
-* First Boot
+* [Get an Image(>= 4.2.1)](https://developer.nvidia.com/embedded/jetpack)
+* [First Boot](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit#write)
 
 ### Network Config
 
