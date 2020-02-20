@@ -84,6 +84,7 @@ EOF
 
 ```sh
 sudo apt-get remove docker docker-engine docker.io containerd runc -y
+
 sudo apt-get update
 sudo apt-get install \
     apt-transport-https \
@@ -109,8 +110,8 @@ sudo add-apt-repository \
 sudo apt update
 
 sudo apt-get install -y \
-  docker-ce=18.06.1~ce~3-0~ubuntu \
-  #docker-ce-cli \
+  docker-ce=5:18.09.7~3-0~ubuntu-bionic \
+  docker-ce-cli=5:18.09.7~3-0~ubuntu-bionic \
   containerd.io \
   --allow-downgrades
 
