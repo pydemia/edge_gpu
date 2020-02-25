@@ -420,7 +420,7 @@ As `ROOT`:
 ```sh
 export API_ADDR="192.168.201.2"  # Master Server external IP
 export DNS_DOMAIN="k8s.local"
-export POD_NET="10.100.0.0/24"   # k8s cluster POD Network CIDR
+export POD_NET="10.100.0.0/16"   # k8s cluster POD Network CIDR
 ```
 
 For chaining the bridged network traffic to `iptables`:
@@ -459,19 +459,17 @@ kubeadm init \
 [kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
 [kubelet-start] Activating the kubelet service
 [certs] Using certificateDir folder "/etc/kubernetes/pki"
-[certs] Generating "etcd/ca" certificate and key
-[certs] Generating "etcd/peer" certificate and key
-[certs] etcd/peer serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1]
-[certs] Generating "etcd/healthcheck-client" certificate and key
-[certs] Generating "etcd/server" certificate and key
-[certs] etcd/server serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1]
-[certs] Generating "apiserver-etcd-client" certificate and key
 [certs] Generating "ca" certificate and key
 [certs] Generating "apiserver-kubelet-client" certificate and key
 [certs] Generating "apiserver" certificate and key
 [certs] apiserver serving cert is signed for DNS names [pydemia-jn00 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.k8s.local] and IPs [10.96.0.1 192.168.201.2]
 [certs] Generating "front-proxy-ca" certificate and key
 [certs] Generating "front-proxy-client" certificate and key
+[certs] Generating "etcd/ca" certificate and key
+[certs] Generating "etcd/server" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1] [certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1]   [certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] Generating "apiserver-etcd-client" certificate and key
 [certs] Generating "sa" key and public key
 [kubeconfig] Using kubeconfig folder "/etc/kubernetes"
 [kubeconfig] Writing "admin.conf" kubeconfig file
@@ -485,13 +483,13 @@ kubeadm init \
 [etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
 [wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
 [kubelet-check] Initial timeout of 40s passed.
-[apiclient] All control plane components are healthy after 59.023934 seconds
+[apiclient] All control plane components are healthy after 61.562702 seconds
 [upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
 [kubelet] Creating a ConfigMap "kubelet-config-1.15" in namespace kube-system with the configuration for the kubelets in the cluster
 [upload-certs] Skipping phase. Please see --upload-certs
 [mark-control-plane] Marking the node pydemia-jn00 as control-plane by adding the label "node-role.kubernetes.io/master=''"
 [mark-control-plane] Marking the node pydemia-jn00 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
-[bootstrap-token] Using token: vdtl8i.ilk45ovj00xussa5
+[bootstrap-token] Using token: eh062q.qi5w233jg8fqhck7
 [bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
 [bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
 [bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
@@ -514,8 +512,8 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join 192.168.201.2:6443 --token vdtl8i.ilk45ovj00xussa5 \
-    --discovery-token-ca-cert-hash sha256:dec491861bdf757dee5fa0c892e87f58674cbb62cfcd0dac77b4db9847f6866e
+kubeadm join 192.168.201.2:6443 --token eh062q.qi5w233jg8fqhck7 \
+    --discovery-token-ca-cert-hash sha256:e41cf058852c7f3b46ae0d9be2d6ab1cc0005c5702da0601479851209b195f68
 
 ```
 
@@ -535,11 +533,12 @@ echo "export KUBECONFIG=$HOME/.kube/config" | tee -a ~/.bashrc
 ```sh
 wget https://docs.projectcalico.org/v3.9/manifests/calico.yaml
 vim calico.yaml
+
 ```
 
 ```yaml
 - name: CALICO_IPV4POOL_CIDR
-  value: "10.100.0.0/24"
+  value: "10.100.0.0/16"
 ```
 
 
@@ -548,6 +547,9 @@ kubectl apply -f ./calico.yaml
 
 wget https://docs.projectcalico.org/v3.9/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calicoctl.yaml
 kubectl apply -f ./calicoctl.yaml
+
+sudo vim /etc/bash.bashrc
+alias calicoctl="kubectl exec -i -n kube-system calicoctl /calicoctl -- "
 
 
 configmap/calico-config created
