@@ -28,7 +28,7 @@ Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
 ```
 
 ```sh
-cat ~/.ssh/pydemia-server-surface-rsa-key.pub | ssh pydemia@192.168.201.3 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat > ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+cat ~/.ssh/pydemia-server-surface-rsa-key.pub | ssh pydemia@192.168.2.12 "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat > ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
 ```
 
 ### System Basic Setting
@@ -383,10 +383,10 @@ sudo vim /etc/hosts
 127.0.1.1       pydemia-jn00 # Its own hostname
 
 
-192.168.201.2   pydemia-jn00
-192.168.201.3   pydemia-jn01
-192.168.201.4   pydemia-jn02
-192.168.201.5   pydemia-jn03
+192.168.2.11   kube-jn00
+192.168.2.12   kube-jn01
+192.168.2.13   kube-jn02
+192.168.2.14   kube-jn03
 ```
 
 ```diff
@@ -418,7 +418,7 @@ sudo vim /etc/bash.bashrc
 
 As `ROOT`:
 ```sh
-export API_ADDR="192.168.201.2"  # Master Server external IP
+export API_ADDR="192.168.2.11"  # Master Server external IP
 export DNS_DOMAIN="k8s.local"
 export POD_NET="10.100.0.0/16"   # k8s cluster POD Network CIDR
 ```
@@ -462,13 +462,13 @@ kubeadm init \
 [certs] Generating "ca" certificate and key
 [certs] Generating "apiserver-kubelet-client" certificate and key
 [certs] Generating "apiserver" certificate and key
-[certs] apiserver serving cert is signed for DNS names [pydemia-jn00 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.k8s.local] and IPs [10.96.0.1 192.168.201.2]
+[certs] apiserver serving cert is signed for DNS names [pydemia-jn00 kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.k8s.local] and IPs [10.96.0.1 192.168.2.11]
 [certs] Generating "front-proxy-ca" certificate and key
 [certs] Generating "front-proxy-client" certificate and key
 [certs] Generating "etcd/ca" certificate and key
 [certs] Generating "etcd/server" certificate and key
-[certs] etcd/server serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1] [certs] Generating "etcd/peer" certificate and key
-[certs] etcd/peer serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.201.2 127.0.0.1 ::1]   [certs] Generating "etcd/healthcheck-client" certificate and key
+[certs] etcd/server serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.2.11 127.0.0.1 ::1] [certs] Generating "etcd/peer" certificate and key
+[certs] etcd/peer serving cert is signed for DNS names [pydemia-jn00 localhost] and IPs [192.168.2.11 127.0.0.1 ::1]   [certs] Generating "etcd/healthcheck-client" certificate and key
 [certs] Generating "apiserver-etcd-client" certificate and key
 [certs] Generating "sa" key and public key
 [kubeconfig] Using kubeconfig folder "/etc/kubernetes"
@@ -512,7 +512,7 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join 192.168.201.2:6443 --token eh062q.qi5w233jg8fqhck7 \
+kubeadm join 192.168.2.11:6443 --token eh062q.qi5w233jg8fqhck7 \
     --discovery-token-ca-cert-hash sha256:e41cf058852c7f3b46ae0d9be2d6ab1cc0005c5702da0601479851209b195f68
 
 ```
@@ -593,7 +593,7 @@ watch kubectl get pods --all-namespaces
 
 AS `ROOT`:
 ```sh
-kubeadm join 192.168.201.2:6443 --token vdtl8i.ilk45ovj00xussa5 \
+kubeadm join 192.168.2.11:6443 --token vdtl8i.ilk45ovj00xussa5 \
     --discovery-token-ca-cert-hash sha256:dec491861bdf757dee5fa0c892e87f58674cbb62cfcd0dac77b4db9847f6866e
 
 ```
